@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libusb-1.0-0-dev \
     libboost-all-dev \
     libopencv-dev \
+    libtbb-dev \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
@@ -46,6 +47,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /opt
 
+# GTSAM 4.0.3 (required by MM-LINS)
+RUN wget -O /opt/gtsam.zip https://github.com/borglab/gtsam/archive/refs/tags/4.0.3.zip && \
+    unzip gtsam.zip && \
+    cd gtsam-4.0.3 && \
+    mkdir build && cd build && \
+    cmake .. -DGTSAM_BUILD_TESTS=OFF -DGTSAM_BUILD_EXAMPLES_ALWAYS=OFF -DGTSAM_USE_SYSTEM_EIGEN=ON && \
+    make -j$(nproc) && make install && ldconfig && \
+    cd / && rm -rf /opt/gtsam*
+
+# Livox SDK
 RUN git clone https://github.com/Livox-SDK/Livox-SDK.git && \
     cd Livox-SDK && \
     rm -rf build && mkdir build && cd build && \
@@ -54,11 +65,6 @@ RUN git clone https://github.com/Livox-SDK/Livox-SDK.git && \
 WORKDIR /ros_ws
 
 COPY ./src ./src
-
-# Fix LOG-LIO2 hardcoded OpenCV paths — let cmake find system OpenCV
-RUN sed -i '/Set(OpenCV_DIR/d' /ros_ws/src/LOG-LIO2/CMakeLists.txt && \
-    sed -i 's/find_package(OpenCV 3.2 QUIET)/find_package(OpenCV REQUIRED)/' /ros_ws/src/LOG-LIO2/CMakeLists.txt && \
-    sed -i 's|#  livox_ros_driver|  livox_ros_driver|' /ros_ws/src/LOG-LIO2/CMakeLists.txt
 
 # Build workspace
 RUN source /opt/ros/noetic/setup.bash && \
