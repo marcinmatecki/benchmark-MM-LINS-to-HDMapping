@@ -1,12 +1,12 @@
 #!/bin/bash
 
-IMAGE_NAME='log-lio2-kitti_noetic'
+IMAGE_NAME='mm-lins-kitti_noetic'
 TMUX_SESSION='ros1_session'
 
-DATASET_CONTAINER_PATH='/ros_ws/dataset/recorded-log-lio2.bag'
+DATASET_CONTAINER_PATH='/ros_ws/dataset/recorded-mm-lins.bag'
 BAG_OUTPUT_CONTAINER='/ros_ws/recordings'
 
-RECORDED_BAG_NAME="recorded-log-lio2.bag"
+RECORDED_BAG_NAME="recorded-mm-lins.bag"
 HDMAPPING_OUT_NAME="output_hdmapping"
 
 usage() {
@@ -17,7 +17,7 @@ usage() {
   exit 1
 }
 
-echo "=== LOG-LIO2 rosbag pipeline (KITTI / Velodyne HDL-64) ==="
+echo "=== MM-LINS rosbag pipeline (KITTI / Velodyne HDL-64) ==="
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   usage
@@ -74,7 +74,7 @@ docker run -it --rm \
     tmux send-keys -t '"$TMUX_SESSION"' '\''sleep 5
 source /opt/ros/noetic/setup.bash
 source /ros_ws/devel/setup.bash
-roslaunch log_lio mapping_kitti.launch rviz:=false
+roslaunch fast_lio mapping_kitti.launch rviz:=false
 '\'' C-m
 
     # ---------- PANEL 2: rosbag record ----------
@@ -128,9 +128,9 @@ docker run -it --rm \
     set -e
     source /opt/ros/noetic/setup.bash
     source /ros_ws/devel/setup.bash
-    rosrun log-lio2-to-hdmapping listener \
+    rosrun mm-lins-to-hdmapping listener \
       \"$BAG_OUTPUT_CONTAINER/$RECORDED_BAG_NAME\" \
-      \"$BAG_OUTPUT_CONTAINER/$HDMAPPING_OUT_NAME-log-lio2\"
+      \"$BAG_OUTPUT_CONTAINER/$HDMAPPING_OUT_NAME-mm-lins\"
   "
 
 echo "=== DONE ==="
