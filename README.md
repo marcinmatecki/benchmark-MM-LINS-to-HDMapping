@@ -1,45 +1,46 @@
-# [MM-LINS](https://github.com/lian-yue0515/MM-LINS) converter to [HDMapping](https://github.com/MapsHD/HDMapping)
+# MM-LINS to HDMapping simlified instruction
 
-## Intended use
+## Step 1 (prepare data)
+Download the dataset `kitti_seq00_ros1.bag` by clicking [link](https://huggingface.co/datasets/kubchud/kitti_to_ros/resolve/main/kitti_seq00_ros1.bag) (it is part of [kitti_seq](https://github.com/Jakubach/kitti_to_ros)).
 
-This small toolset allows to integrate the SLAM solution provided by [MM-LINS](https://github.com/lian-yue0515/MM-LINS) with [HDMapping](https://github.com/MapsHD/HDMapping).
-This repository contains a ROS 1 workspace that:
-  - submodule to tested revision of MM-LINS (FAST-LIO based)
-  - a converter that listens to topics advertised from the odometry node and saves data in a format compatible with HDMapping.
+### Extract the dataset
 
-## Example datasets
+File `kitti_seq00_ros1.bag` is an input for further calculations.
+It should be located in `~/hdmapping-benchmark/data`.
 
-- [Bunker DVI Dataset](https://charleshamesse.github.io/bunker-dvi-dataset/) — `reg-1.bag` (Livox MID-360). See branch `Bunker-DVI-Dataset-reg-1`.
-- [KITTI raw/odometry](https://www.cvlibs.net/datasets/kitti/). See branch `kitti`.
-
-## Published topics (from MM-LINS)
-
-- `/cloud_registered`      — `sensor_msgs/PointCloud2`, per-scan registered cloud in world frame
-- `/Odometry`              — `nav_msgs/Odometry`
-- `/path`                  — `nav_msgs/Path`
-
-The converter only consumes `/cloud_registered` and `/Odometry`.
-
-## Dependencies
-
+## Step 2 (prepare docker)
 ```shell
-sudo apt install -y nlohmann-json3-dev
-```
-
-## Building
-
-```shell
-mkdir -p /test_ws/src
-cd /test_ws/src
+mkdir -p ~/hdmapping-benchmark
+cd ~/hdmapping-benchmark
 git clone https://github.com/MapsHD/benchmark-MM-LINS-to-HDMapping.git --recursive
-cd ..
-catkin_make
+cd benchmark-MM-LINS-to-HDMapping
+git checkout kitti
+docker build -t mm-lins_noetic .
 ```
 
-## Usage — conversion:
-
+## Step 3 (run docker, file 'kitti_seq00_ros1.bag' should be in '~/hdmapping-benchmark/data')
 ```shell
-rosrun mm-lins-to-hdmapping listener <recorded.bag> <output_dir>
+cd ~/hdmapping-benchmark/benchmark-MM-LINS-to-HDMapping
+chmod +x docker_session_run-ros1-mm-lins.sh
+cd ~/hdmapping-benchmark/data
+~/hdmapping-benchmark/benchmark-MM-LINS-to-HDMapping/docker_session_run-ros1-mm-lins.sh kitti_seq00_ros1.bag .
 ```
 
-For a one-shot Docker-based pipeline, switch to branch `Bunker-DVI-Dataset-reg-1` or `kitti`.
+## Step 4 (Open and visualize data)
+Expected data should appear in ~/hdmapping-benchmark/data/output_hdmapping-mm-lins
+Use tool [multi_view_tls_registration_step_2](https://github.com/MapsHD/HDMapping) to open session.json from ~/hdmapping-benchmark/data/output_hdmapping-mm-lins.
+
+You should see following data in '~/hdmapping-benchmark/data/output_hdmapping-mm-lins'
+
+lio_initial_poses.reg
+
+poses.reg
+
+scan_lio_*.laz
+
+session.json
+
+trajectory_lio_*.csv
+
+## Contact email
+januszbedkowski@gmail.com
