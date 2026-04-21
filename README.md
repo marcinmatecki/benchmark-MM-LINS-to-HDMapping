@@ -1,45 +1,48 @@
-# [MM-LINS](https://github.com/lian-yue0515/MM-LINS) converter to [HDMapping](https://github.com/MapsHD/HDMapping)
+# MM-LINS to HDMapping simlified instruction
 
-## Intended use
+## Step 1 (prepare data)
+Download the dataset `reg-1.bag` by clicking [link](https://cloud.cylab.be/public.php/dav/files/7PgyjbM2CBcakN5/reg-1.bag) (it is part of [Bunker DVI Dataset](https://charleshamesse.github.io/bunker-dvi-dataset)).
 
-This small toolset allows to integrate the SLAM solution provided by [MM-LINS](https://github.com/lian-yue0515/MM-LINS) with [HDMapping](https://github.com/MapsHD/HDMapping).
-This repository contains a ROS 1 workspace that:
-  - submodule to tested revision of MM-LINS (FAST-LIO based)
-  - a converter that listens to topics advertised from the odometry node and saves data in a format compatible with HDMapping.
+File 'reg-1.bag' is an input for further calculations.
+It should be located in '~/hdmapping-benchmark/data'.
 
-## Example datasets
 
-- [Bunker DVI Dataset](https://charleshamesse.github.io/bunker-dvi-dataset/) — `reg-1.bag` (Livox MID-360). See branch `Bunker-DVI-Dataset-reg-1`.
-- [KITTI raw/odometry](https://www.cvlibs.net/datasets/kitti/). See branch `kitti`.
-
-## Published topics (from MM-LINS)
-
-- `/cloud_registered`      — `sensor_msgs/PointCloud2`, per-scan registered cloud in world frame
-- `/Odometry`              — `nav_msgs/Odometry`
-- `/path`                  — `nav_msgs/Path`
-
-The converter only consumes `/cloud_registered` and `/Odometry`.
-
-## Dependencies
-
+## Step 2 (prepare docker)
 ```shell
-sudo apt install -y nlohmann-json3-dev
+mkdir -p ~/hdmapping-benchmark
+cd ~/hdmapping-benchmark
+git clone https://github.com/Jakubach/benchmark-MM-LINS-to-HDMapping.git --recursive
+cd benchmark-MM-LINS-to-HDMapping
+git checkout Bunker-DVI-Dataset-reg-1
+docker build -t mm-lins_noetic .
 ```
 
-## Building
-
+## Step 3 (run docker, file 'reg-1.bag' should be in '~/hdmapping-benchmark/data')
 ```shell
-mkdir -p /test_ws/src
-cd /test_ws/src
-git clone https://github.com/MapsHD/benchmark-MM-LINS-to-HDMapping.git --recursive
-cd ..
-catkin_make
+cd ~/hdmapping-benchmark/benchmark-MM-LINS-to-HDMapping
+chmod +x docker_session_run-ros1-mm-lins.sh
+cd ~/hdmapping-benchmark/data
+~/hdmapping-benchmark/benchmark-MM-LINS-to-HDMapping/docker_session_run-ros1-mm-lins.sh reg-1.bag .
 ```
 
-## Usage — conversion:
+## Step 4 (Open and visualize data)
+Expected data should appear in ~/hdmapping-benchmark/data/output_hdmapping-mm-lins
+Use tool [multi_view_tls_registration_step_2](https://github.com/MapsHD/HDMapping) to open session.json from ~/hdmapping-benchmark/data/output_hdmapping-mm-lins.
 
-```shell
-rosrun mm-lins-to-hdmapping listener <recorded.bag> <output_dir>
-```
+You should see following data
 
-For a one-shot Docker-based pipeline, switch to branch `Bunker-DVI-Dataset-reg-1` or `kitti`.
+lio_initial_poses.reg
+
+poses.reg
+
+scan_lio_*.laz
+
+session.json
+
+trajectory_lio_*.csv
+
+## Movie
+[[movie]]()
+
+## Contact email
+januszbedkowski@gmail.com
