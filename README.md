@@ -1,24 +1,15 @@
 # [MM-LINS](https://github.com/lian-yue0515/MM-LINS) converter to [HDMapping](https://github.com/MapsHD/HDMapping)
 
+## Hint
+
+Please change branch to [Bunker-DVI-Dataset-reg-1](https://github.com/MapsHD/benchmark-MM-LINS-to-HDMapping/tree/Bunker-DVI-Dataset-reg-1) or [kitti](https://github.com/MapsHD/benchmark-MM-LINS-to-HDMapping/tree/kitti) for quick experiment.
+
 ## Intended use
 
-This small toolset allows to integrate the SLAM solution provided by [MM-LINS](https://github.com/lian-yue0515/MM-LINS) with [HDMapping](https://github.com/MapsHD/HDMapping).
-This repository contains a ROS 1 workspace that:
-  - submodule to tested revision of MM-LINS (FAST-LIO based)
-  - a converter that listens to topics advertised from the odometry node and saves data in a format compatible with HDMapping.
-
-## Example datasets
-
-- [Bunker DVI Dataset](https://charleshamesse.github.io/bunker-dvi-dataset/) — `reg-1.bag` (Livox MID-360). See branch `Bunker-DVI-Dataset-reg-1`.
-- [KITTI raw/odometry](https://www.cvlibs.net/datasets/kitti/). See branch `kitti`.
-
-## Published topics (from MM-LINS)
-
-- `/cloud_registered`      — `sensor_msgs/PointCloud2`, per-scan registered cloud in world frame
-- `/Odometry`              — `nav_msgs/Odometry`
-- `/path`                  — `nav_msgs/Path`
-
-The converter only consumes `/cloud_registered` and `/Odometry`.
+This small toolset allows to integrate SLAM solution provided by [MM-LINS](https://github.com/lian-yue0515/MM-LINS) with [HDMapping](https://github.com/MapsHD/HDMapping).
+This repository contains ROS 1 workspace that :
+  - submodule to tested revision of MM-LINS
+  - a converter that listens to topics advertised from odometry node and save data in format compatible with HDMapping.
 
 ## Dependencies
 
@@ -28,6 +19,7 @@ sudo apt install -y nlohmann-json3-dev
 
 ## Building
 
+Clone the repo
 ```shell
 mkdir -p /test_ws/src
 cd /test_ws/src
@@ -36,10 +28,56 @@ cd ..
 catkin_make
 ```
 
-## Usage — conversion:
+## Usage - data SLAM:
 
+Prepare recorded bag with estimated odometry:
+
+In first terminal record bag:
 ```shell
-rosrun mm-lins-to-hdmapping listener <recorded.bag> <output_dir>
+rosbag record /cloud_registered /Odometry
 ```
 
-For a one-shot Docker-based pipeline, switch to branch `Bunker-DVI-Dataset-reg-1` or `kitti`.
+and start odometry:
+```shell
+cd /test_ws/
+source ./devel/setup.sh # adjust to used shell
+roslaunch fast_lio mapping_mid360.launch    # or mapping_kitti.launch
+rosbag play *.bag --clock
+```
+
+## Usage - conversion:
+
+```shell
+cd /test_ws/
+source ./devel/setup.sh # adjust to used shell
+rosrun mm-lins-to-hdmapping listener <recorded_bag> <output_dir>
+```
+
+## Record the bag file:
+
+```shell
+rosbag record /cloud_registered /Odometry
+```
+
+## MM-LINS Launch:
+
+```shell
+cd /test_ws/
+source ./install/setup.sh # adjust to used shell
+roslaunch fast_lio mapping_mid360.launch    # or mapping_kitti.launch
+```
+
+## During the record (if you want to stop recording earlier) / after finishing the bag:
+
+```shell
+In the terminal where the ros record is, interrupt the recording by CTRL+C
+Do it also in ros launch terminal by CTRL+C.
+```
+
+## Usage - Conversion (ROS bag to HDMapping, after recording stops):
+
+```shell
+cd /test_ws/
+source ./install/setup.sh # adjust to used shell
+rosrun mm-lins-to-hdmapping listener <recorded_bag> <output_dir>
+```
