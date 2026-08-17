@@ -67,6 +67,8 @@ WORKDIR /ros_ws
 
 COPY ./src ./src
 
+RUN sed -i 's|imu_topic:  "/imu_raw"|imu_topic:  "/imu/data"|' src/MM-LINS/FAST-LIO/config/velodyne.yaml
+
 # Build workspace
 RUN source /opt/ros/noetic/setup.bash && \
     catkin_make
