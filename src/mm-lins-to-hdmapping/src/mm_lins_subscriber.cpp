@@ -168,7 +168,7 @@ int main(int argc, char **argv)
     rosbag::View view(bag); 
 
     for (const rosbag::MessageInstance& m : view) {
-        if (m.getTopic() == "/aft_pgo_map") {
+        if (m.getTopic() == "/velodyne_cloud_registered") {
             ROS_INFO("Received message on topic: /aft_pgo_map");
 
             sensor_msgs::PointCloud2::ConstPtr cloud_msg = m.instantiate<sensor_msgs::PointCloud2>();
@@ -311,7 +311,7 @@ int main(int argc, char **argv)
     {
         chunk.push_back(points_global[i]);
 
-        if (chunk.size() > 20000)
+        if (chunk.size() > 200000)
         {
             counter++;
             chunks_pc.push_back(chunk);
@@ -323,7 +323,7 @@ int main(int argc, char **argv)
     // remaining pc
     std::cout << "reamaining points: " << chunk.size() << std::endl;
 
-    if (chunk.size() > 10000)
+    if (chunk.size() > 100000)
     {
         chunks_pc.push_back(chunk);
     }

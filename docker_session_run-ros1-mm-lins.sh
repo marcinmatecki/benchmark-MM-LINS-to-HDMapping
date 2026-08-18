@@ -90,7 +90,7 @@ roslaunch aloam_velodyne aloam_velodyne_HDL_64.launch
 source /opt/ros/noetic/setup.bash
 source /ros_ws/devel/setup.bash
 echo "[record] start"
-rosbag record /aft_pgo_map /aft_pgo_odom -O '"$BAG_OUTPUT_CONTAINER/$RECORDED_BAG_NAME"'
+rosbag record /velodyne_cloud_registered /aft_pgo_odom -O '"$BAG_OUTPUT_CONTAINER/$RECORDED_BAG_NAME"'
 echo "[record] exit"
 '\'' C-m
 
