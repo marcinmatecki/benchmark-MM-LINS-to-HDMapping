@@ -168,8 +168,8 @@ int main(int argc, char **argv)
     rosbag::View view(bag); 
 
     for (const rosbag::MessageInstance& m : view) {
-        if (m.getTopic() == "/cloud_registered") {
-            ROS_INFO("Received message on topic: /cloud_registered");
+        if (m.getTopic() == "/aft_pgo_map") {
+            ROS_INFO("Received message on topic: /aft_pgo_map");
 
             sensor_msgs::PointCloud2::ConstPtr cloud_msg = m.instantiate<sensor_msgs::PointCloud2>();
 
@@ -220,8 +220,8 @@ int main(int argc, char **argv)
             }
         }
        
-        if (m.getTopic() == "/Odometry") {
-            ROS_INFO("Received message on topic: /Odometry");
+        if (m.getTopic() == "/aft_pgo_odom") {
+            ROS_INFO("Received message on topic: /aft_pgo_odom");
 
             nav_msgs::Odometry::ConstPtr odom_msg = m.instantiate<nav_msgs::Odometry>();
 

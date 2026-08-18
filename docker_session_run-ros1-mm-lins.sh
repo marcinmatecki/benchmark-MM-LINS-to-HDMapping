@@ -17,7 +17,7 @@ usage() {
   exit 1
 }
 
-echo "=== MM-LINS rosbag pipeline (Bunker DVI / Livox MID-360) ==="
+echo "=== MM-LINS rosbag pipeline (KITTI) ==="
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   usage
@@ -71,10 +71,17 @@ docker run -it --rm \
     tmux new-session -d -s '"$TMUX_SESSION"'
 
     # ---------- PANEL 1: ROS launch ----------
-    tmux send-keys -t '"$TMUX_SESSION"' '\''sleep 5
+    tmux send-keys -t '"$TMUX_SESSION"' '\''sleep 3
 source /opt/ros/noetic/setup.bash
 source /ros_ws/devel/setup.bash
 roslaunch fast_lio mapping_velodyne.launch
+'\'' C-m
+    # ---------- PANEL 2: ROS launch ----------
+    tmux split-window -h -t '"$TMUX_SESSION"'
+    tmux send-keys -t '"$TMUX_SESSION"' '\''sleep 5
+source /opt/ros/noetic/setup.bash
+source /ros_ws/devel/setup.bash
+roslaunch aloam_velodyne aloam_velodyne_HDL_64.launch
 '\'' C-m
 
     # ---------- PANEL 2: rosbag record ----------
@@ -83,7 +90,7 @@ roslaunch fast_lio mapping_velodyne.launch
 source /opt/ros/noetic/setup.bash
 source /ros_ws/devel/setup.bash
 echo "[record] start"
-rosbag record /cloud_registered /Odometry -O '"$BAG_OUTPUT_CONTAINER/$RECORDED_BAG_NAME"'
+rosbag record /aft_pgo_map /aft_pgo_odom -O '"$BAG_OUTPUT_CONTAINER/$RECORDED_BAG_NAME"'
 echo "[record] exit"
 '\'' C-m
 
